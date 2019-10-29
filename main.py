@@ -141,6 +141,8 @@ def main(argvs):
             if stage == STAGE_INIT:
                 count = 0
         debugState(tabState,gunState,window)
+        stagePre = stage
+
         key = window.update()
         if key == ord('q'):
             window.close()
@@ -153,15 +155,14 @@ def main(argvs):
             stage = STAGE_INIT
             count = 0
 
-        stagePre = stage
     pass
 
 def update(count,stage,timeScale,tabState,gunState,osc,window):
     #print("count", count,"stage",stage)
-    if count == int(1 * FPS * timeScale):
+    if count == int(4 * FPS * timeScale):
         stage = STAGE_LEVEL_1
         print("change to STAGE_LEVEL_1")
-    if count == int(5 * FPS  * timeScale):
+    if count == int(7 * FPS  * timeScale):
         print("change to STAGE_LEVEL_2")
         stage = STAGE_LEVEL_2
     if count == int(9 * FPS  * timeScale):
@@ -202,5 +203,5 @@ def update(count,stage,timeScale,tabState,gunState,osc,window):
     
 if __name__=='__main__':
     argvs=sys.argv
-    print argvs
+    print(argvs)
     main(argvs)
