@@ -8,7 +8,7 @@ import time, random
 import os, sys
 import threading
 
-IP_HEAD = "192.168.2."
+IP_HEAD = "192.168.11."
 
 TAB_IPS =[
     IP_HEAD+"1",
@@ -26,6 +26,9 @@ TAB_IPS =[
     IP_HEAD+"8",
     IP_HEAD+"9",
     IP_HEAD+"10"
+]
+TAB_IPS_3 =[
+    IP_HEAD+"6"
 ]
 
 TAB_PORT = 12346
@@ -47,11 +50,10 @@ GUN_IPS =[
     IP_HEAD+"20"
 ]
 GUN_PORT = 12346
-PC_IP = IP_HEAD+"90"
+PC_IP = IP_HEAD+"50"
 PC_PORT = 12345
 
 LOCAL_IP = '127.0.0.1'
-
 
 class MY_OSC:
     def __init__(self):
@@ -62,6 +64,7 @@ class MY_OSC:
         self.dst = []
         self.bArrived = False
         self.recv = []
+        self.recvItem = []
         self.localMode = False
         self.debug = False
         return
@@ -91,6 +94,7 @@ class MY_OSC:
         print "hit item!!!!!!!!!!!!!!!!!!!"
         self.bArrived = True
         self.recv.append([client_address,addr,data[0]])
+        self.recvItem.append([client_address,0])
 
     def setup(self):
         print("work as server",self.myIP,self.myPORT)
@@ -108,6 +112,7 @@ class MY_OSC:
 
     def clearRecv(self):
         self.recv = []
+        self.recvItem = []
 
     def get(self):
         if self.bArrived:
@@ -136,7 +141,7 @@ class MY_OSC:
         for i in ips:
             try:
                 if self.debug:
-                    print("Send to ",i,msg)
+                    print("Send to ",i,port,msg)
                 self.client.sendto(msg, (i, port))
             except:
                 print "send error"
@@ -151,7 +156,7 @@ class MY_OSC:
         msg = self.makeMsg(address,content)
         if self.localMode:
             if self.debug:
-                print("Send tab to ",LOCAL_IP,msg)
+                print("Send tab to ", LOCAL_IP, TAB_PORT, msg)
             self.client.sendto(msg,(LOCAL_IP, TAB_PORT))
         else:
             self.sendAll(msg, [TAB_IPS[idx]], TAB_PORT)
@@ -162,7 +167,7 @@ class MY_OSC:
         try:
             if self.localMode:
                 if self.debug:
-                    print("Send tab to ",LOCAL_IP,msg)
+                    print("Send tab to ",LOCAL_IP, TAB_PORT, msg)
                 self.client.sendto(msg,(LOCAL_IP, TAB_PORT))
             else:
                 self.sendAll(msg, TAB_IPS, TAB_PORT)
@@ -184,7 +189,7 @@ class MY_OSC:
         msg = self.makeMsg(address,content)
         if self.localMode:
             if self.debug:
-                print("Send tab to ",LOCAL_IP,msg)
+                print("Send gun to ",LOCAL_IP,msg)
             self.client.sendto(msg,(LOCAL_IP, GUN_PORT))
         else:
             self.sendAll(msg, GUN_IPS, GUN_PORT)
