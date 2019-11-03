@@ -96,6 +96,9 @@ def debugState(tab,gun,window):
 def main(argvs):
     mode = None
     osc = libOSC.MY_OSC()
+    for i in argvs:
+        if "debug" == i:
+            osc.setDebug()
     GUN_MODE = [[0]]
     TAB_MODE = [[0,1,2,3,4,5,6,7,8,9]]
     if len(argvs) > 1:
@@ -113,6 +116,7 @@ def main(argvs):
         if mode == "3":#collab mode
             GUN_MODE = [[0,1]]
             TAB_MODE = [[0,1,2,3,4,5,6,7,8,9]]
+    userDict = makeDictIp2User(libOSC.TAB_IPS, TAB_MODE)
     tabState = deepcopy(TAB_MODE)
     gunState = deepcopy(GUN_MODE)
     initState(tabState,gunState)
@@ -127,10 +131,14 @@ def main(argvs):
     while 1:
         if count > 0:
             count += 1
+            # change stage
+            # update each frame
             stage = update(count,stage,timeScale,tabState,gunState,osc,window)
             time.sleep(1/30.)
             if count % FPS == 0:
                 print("["+str(count/FPS)+"]"+str(stage))
+                score = calcScore(len(TAB_MODE), userDict, osc.recv)
+        # action when stage changed
         if stagePre != stage:
             print("change stage to" + str(stage))
             if stage == STAGE_COUNTDOWN:
@@ -138,6 +146,8 @@ def main(argvs):
                 osc.sendTabAll("/start",[])
             if stage == STAGE_LEVEL_1:
                 startState(tabState,gunState)
+            if stage == STAGE_LEVEL_3:
+                osc.sendTabAll("/level",[3])
             if stage == STAGE_INIT:
                 count = 0
         debugState(tabState,gunState,window)
@@ -157,10 +167,31 @@ def main(argvs):
 
     pass
 
+
+def makeDictIp2User(TAB_IPS, TAB_MODE):
+    out = {}
+    for i in range(len(TAB_MODE)):
+        for j in TAB_MODE[i]:
+            out[TAB_IPS[j]] = i
+    return out
+
+def calcScore(userNum, userDict, oscRecvList):
+    print("User num = "+str(userNum))
+    score = [0,] * userNum
+    for i in oscRecvList:
+        if i[1] == '/hit':
+            if i[0][0] in userDict.keys():
+                score[ userDict[i[0][0]] ] += i[2]
+            else:
+                score[0] += i[2]
+    print("score:",score)
+    return score
+
 def update(count,stage,timeScale,tabState,gunState,osc,window):
     #print("count", count,"stage",stage)
     if count == int(4 * FPS * timeScale):
         stage = STAGE_LEVEL_1
+        osc.clearRecv()
         print("change to STAGE_LEVEL_1")
     if count == int(7 * FPS  * timeScale):
         print("change to STAGE_LEVEL_2")
@@ -176,6 +207,8 @@ def update(count,stage,timeScale,tabState,gunState,osc,window):
     if count == int(17 * FPS  * timeScale):
         osc.sendTabAll("/init",[])
         stage = STAGE_INIT
+        osc.clearRecv()
+
     if stage == STAGE_LEVEL_1:
         for tabList in tabState:
             if random.random() > 0.5:
