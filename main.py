@@ -190,7 +190,7 @@ def main(argvs):
         if key == ord('o'):#always motor on
             osc.sendGunAll("/sensor",[0])
         if key == ord('u'):#up
-            osc.sendTabAll("/up",[1000])
+            osc.sendTabAll("/up",[6000])
         if key == ord('l'):#level mode 1
             osc.sendGunAll("/mode",[1])
         if key == ord('k'):#level mode 0
@@ -239,19 +239,19 @@ def update(count,stage,timeScale,tabState,gunState,osc,window):
     if count == int(5 * FPS * timeScale):
         print("[Update] change to STAGE_LEVEL_1")
         stage = STAGE_LEVEL_1
-    if count == int(12 * FPS  * timeScale):
+    if count == int(112 * FPS  * timeScale):
         print("[Update] change to STAGE_LEVEL_2")
         stage = STAGE_LEVEL_2
-    if count == int(16 * FPS  * timeScale):
+    if count == int(116 * FPS  * timeScale):
         print("[Update] change to STAGE_LEVEL_3")
         stage = STAGE_LEVEL_3
-    if count == int(20 * FPS  * timeScale):
+    if count == int(120 * FPS  * timeScale):
         print("[Update] stage end")
         stage = STAGE_END
-    if count == int(22 * FPS  * timeScale):
+    if count == int(122 * FPS  * timeScale):
         print("[Update] stage result")
         stage = STAGE_RESULT
-    if count == int(30 * FPS  * timeScale):
+    if count == int(130 * FPS  * timeScale):
         print("[Update] initialize")
         stage = STAGE_INIT
 
@@ -260,22 +260,22 @@ def update(count,stage,timeScale,tabState,gunState,osc,window):
             if random.random() > 0.5:
                 idx = random.randint(0,len(tabList)-1)
                 if tabList[idx] == 10:
-                    tabList[idx] = MATO1_STATUS_OFFSET + 60
-                    osc.sendTabAll("/up",[2000])
+                    tabList[idx] = MATO1_STATUS_OFFSET + 260
+                    osc.sendTabAll("/up",[6000])
     if stage == STAGE_LEVEL_2:
         for tabList in tabState:
             if random.random() > 0.5:
                 idx = random.randint(0,len(tabList)-1)
                 if tabList[idx] == 10:
-                    tabList[idx] = MATO1_STATUS_OFFSET + 60
-                    osc.sendTabAll("/up",[1500])
+                    tabList[idx] = MATO1_STATUS_OFFSET + 260
+                    osc.sendTabAll("/up",[6500])
     if stage == STAGE_LEVEL_3:
         for tabList in tabState:
             if random.random() > 0.5:
                 idx = random.randint(0,len(tabList)-1)
                 if tabList[idx] == 10:
-                    tabList[idx] = MATO1_STATUS_OFFSET + 60
-                    osc.sendTabAll("/up",[1000])
+                    tabList[idx] = MATO1_STATUS_OFFSET + 260
+                    osc.sendTabAll("/up",[6000])
     updateState(tabState,gunState)
     #printState(tabState,gunState)
     return stage

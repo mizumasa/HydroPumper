@@ -8,7 +8,7 @@ import time, random
 import os, sys
 import threading
 
-IP_HEAD = "192.168.11."
+IP_HEAD = "192.168.2."
 
 TAB_IPS =[
     IP_HEAD+"1",
@@ -27,8 +27,8 @@ TAB_IPS =[
     IP_HEAD+"9",
     IP_HEAD+"10"
 ]
-TAB_IPS_3 =[
-    IP_HEAD+"6"
+TAB_IPS =[
+    IP_HEAD+"101"
 ]
 
 TAB_PORT = 12346
@@ -50,7 +50,7 @@ GUN_IPS =[
     IP_HEAD+"20"
 ]
 GUN_PORT = 12346
-PC_IP = IP_HEAD+"50"
+PC_IP = IP_HEAD+"90"
 PC_PORT = 12345
 
 LOCAL_IP = '127.0.0.1'
