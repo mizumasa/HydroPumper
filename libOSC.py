@@ -8,7 +8,7 @@ import time, random
 import os, sys
 import threading
 
-IP_HEAD = "192.168.2."
+IP_HEAD = "192.168.1."
 
 TAB_IPS =[
     IP_HEAD+"1",
@@ -50,8 +50,10 @@ GUN_IPS =[
     IP_HEAD+"20"
 ]
 GUN_PORT = 12346
-PC_IP = IP_HEAD+"90"
+PC_IP = IP_HEAD+"50"
 PC_PORT = 12345
+PC_LOCAL_PORT = 12349
+PC_LOCAL_IP = PC_IP
 
 LOCAL_IP = '127.0.0.1'
 
@@ -73,6 +75,25 @@ class MY_OSC:
         self.localMode = True
     def setDebug(self):
         self.debug = True
+
+    def client_sendto(self,msg,path):
+        try:
+            self.client.sendto(msg,path)
+        except:
+            print("send error",msg,path)
+
+    def sendAudioMode(self,iMode):
+        msg = self.makeMsg("/audio",[iMode])
+        if self.debug:
+            print("Send audio mode to ", PC_LOCAL_PORT, msg)
+        self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
+        self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
+    def sendAudioLevel(self,level):
+        msg = self.makeMsg("/audiolevel",[level])
+        if self.debug:
+            print("Send audio level to ", PC_LOCAL_PORT, msg)
+        self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
+        self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
 
     def myMsgPrinter_handler(self, addr, tags, data, client_address):
         print "osc://%server%server ->" % (OSC.getUrlStr(client_address), addr),
@@ -142,7 +163,7 @@ class MY_OSC:
             try:
                 if self.debug:
                     print("Send to ",i,port,msg)
-                self.client.sendto(msg, (i, port))
+                self.client_sendto(msg, (i, port))
             except:
                 print "send error"
 
@@ -157,7 +178,7 @@ class MY_OSC:
         if self.localMode:
             if self.debug:
                 print("Send tab to ", LOCAL_IP, TAB_PORT, msg)
-            self.client.sendto(msg,(LOCAL_IP, TAB_PORT))
+            self.client_sendto(msg,(LOCAL_IP, TAB_PORT))
         else:
             self.sendAll(msg, [TAB_IPS[idx]], TAB_PORT)
         return
@@ -168,7 +189,7 @@ class MY_OSC:
             if self.localMode:
                 if self.debug:
                     print("Send tab to ",LOCAL_IP, TAB_PORT, msg)
-                self.client.sendto(msg,(LOCAL_IP, TAB_PORT))
+                self.client_sendto(msg,(LOCAL_IP, TAB_PORT))
             else:
                 self.sendAll(msg, TAB_IPS, TAB_PORT)
         except:
@@ -180,7 +201,7 @@ class MY_OSC:
         if self.localMode:
             if self.debug:
                 print("Send gun to ",LOCAL_IP,msg)
-            self.client.sendto(msg,(LOCAL_IP, GUN_PORT))
+            self.client_sendto(msg,(LOCAL_IP, GUN_PORT))
         else:
             self.sendAll(msg, [GUN_IPS[idx]], GUN_PORT)
         return
@@ -190,7 +211,7 @@ class MY_OSC:
         if self.localMode:
             if self.debug:
                 print("Send gun to ",LOCAL_IP,msg)
-            self.client.sendto(msg,(LOCAL_IP, GUN_PORT))
+            self.client_sendto(msg,(LOCAL_IP, GUN_PORT))
         else:
             self.sendAll(msg, GUN_IPS, GUN_PORT)
         return
