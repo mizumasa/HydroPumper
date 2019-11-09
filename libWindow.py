@@ -44,6 +44,8 @@ class DEBUG_WINDOW:
         for i in self.frames.keys():
             cv2.imshow(i,self.frames[i])
         key = cv2.waitKey(1)
+        if key != -1:
+            print("key = "+str(key))
         return key
     def close(self):
         cv2.destroyAllWindows()

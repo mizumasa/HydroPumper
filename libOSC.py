@@ -16,18 +16,29 @@ TAB_IPS =[
     IP_HEAD+"3"
 ]
 TAB_IPS =[
-    IP_HEAD+"1",
-    IP_HEAD+"2",
-    IP_HEAD+"3",
-    IP_HEAD+"4",
-    IP_HEAD+"5",
-    IP_HEAD+"6",
-    IP_HEAD+"7",
-    IP_HEAD+"8",
-    IP_HEAD+"9",
-    IP_HEAD+"10"
+    IP_HEAD+"11",
+    IP_HEAD+"12",
+    IP_HEAD+"13",
+    IP_HEAD+"14",
+    IP_HEAD+"15",
+    IP_HEAD+"16",
+    IP_HEAD+"17",
+    IP_HEAD+"18",
+    IP_HEAD+"19",
+    IP_HEAD+"20",
+    IP_HEAD+"21",
+    IP_HEAD+"22"
 ]
+
 TAB_IPS =[
+    IP_HEAD+"22",
+    IP_HEAD+"12",
+    IP_HEAD+"13",
+    IP_HEAD+"14",
+    IP_HEAD+"15"
+    ]
+
+TAB_IPS2 =[
     IP_HEAD+"101"
 ]
 
@@ -49,6 +60,12 @@ GUN_IPS =[
     IP_HEAD+"19",
     IP_HEAD+"20"
 ]
+GUN_IPS =[
+    IP_HEAD+"35",
+    IP_HEAD+"36",
+    IP_HEAD+"37"
+]
+
 GUN_PORT = 12346
 PC_IP = IP_HEAD+"50"
 PC_PORT = 12345
@@ -82,12 +99,20 @@ class MY_OSC:
         except:
             print("send error",msg,path)
 
+    def sendStartAudio(self):
+        msg = self.makeMsg("/startaudio",[])
+        if self.debug:
+            print("Send start audio to ", PC_LOCAL_PORT, msg)
+        self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
+        self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
+
     def sendAudioMode(self,iMode):
         msg = self.makeMsg("/audio",[iMode])
         if self.debug:
             print("Send audio mode to ", PC_LOCAL_PORT, msg)
         self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
         self.client_sendto(msg,(PC_LOCAL_IP, PC_LOCAL_PORT))
+
     def sendAudioLevel(self,level):
         msg = self.makeMsg("/audiolevel",[level])
         if self.debug:

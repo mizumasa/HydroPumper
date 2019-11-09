@@ -3,11 +3,15 @@
 https://trac.v2.nl/wiki/pyOSC
 example by www.ixi-audio.net based on pyOSC documentation
 """
+
+
 import libOSC
 import libWindow
 import time, random
 import os, sys
 from copy import deepcopy
+
+LEVEL_RATIO = 500.
 
 STAGE_INIT = 0
 STAGE_COUNTDOWN = 1
@@ -109,12 +113,18 @@ def main(argvs):
         if mode == "1":#single mode
             GUN_MODE = [[0]]
             TAB_MODE = [[0,1,2,3,4,5,6,7,8,9]]
+        if mode == "12":#single 12 mode
+            GUN_MODE = [[0]]
+            TAB_MODE = [[0,1,2,3,4,5,6,7,8,9,10,11]]
         if mode == "2":#battle mode
             GUN_MODE = [[0],[1]]
             TAB_MODE = [[0,1,2,3,4],[5,6,7,8,9]]
         if mode == "3":#collab mode
             GUN_MODE = [[0,1]]
             TAB_MODE = [[0,1,2,3,4,5,6,7,8,9]]
+        if mode == "5":#battle mode
+            GUN_MODE = [[0]]
+            TAB_MODE = [[0,1,2,3,4]]
     userDict = makeDictIp2User(libOSC.TAB_IPS, TAB_MODE)
     tabState = deepcopy(TAB_MODE)
     gunState = deepcopy(GUN_MODE)
@@ -132,7 +142,7 @@ def main(argvs):
             count += 1
             # change stage
             # update each frame
-            stage = update(count,stage,timeScale,tabState,gunState,osc,window)
+            stage = update(count,stage,timeScale,TAB_MODE,GUN_MODE,tabState,gunState,osc,window)
             time.sleep(1/30.)
             if count % FPS == 0:
                 print("["+str(count/FPS)+"]"+str(stage))
@@ -145,6 +155,7 @@ def main(argvs):
                 osc.sendTabAll("/start",[])
                 osc.sendAudioLevel(0)
                 osc.sendAudioMode(0)
+                osc.sendStartAudio()
 
             if stage == STAGE_LEVEL_1:
                 startState(tabState,gunState)
@@ -162,12 +173,14 @@ def main(argvs):
             if stage == STAGE_RESULT:
                 score = calcScore(len(TAB_MODE), userDict, osc.recv)
                 for i in range(len(TAB_MODE)):
-                    osc.sendTab("/result",[ max(1,score[i]) ],TAB_MODE[i][0])
+                    for j in range(len(TAB_MODE[i])):
+                        osc.sendTab("/result",[ max(1,score[i]) ],TAB_MODE[i][j])
 
             if stage == STAGE_RANK:
                 score = calcScore(len(TAB_MODE), userDict, osc.recv)
                 for i in range(len(TAB_MODE)):
-                    osc.sendTab("/resultother",[ calcRank(max(1,score[i])) ],TAB_MODE[i][0])
+                    for j in range(len(TAB_MODE[i])):
+                        osc.sendTab("/resultother",[ calcRank(max(1,score[i])) ],TAB_MODE[i][j])
 
             if stage == STAGE_INIT:
                 osc.sendTabAll("/init",[])
@@ -204,7 +217,9 @@ def main(argvs):
         if key == ord('o'):#always motor on
             osc.sendGunAll("/sensor",[0])
         if key == ord('u'):#up
-            osc.sendTabAll("/up",[6000])
+            osc.sendTab("/up",[6000],0)
+        if key == ord('t'):#start
+            osc.sendTab("/start",[],0)
         if key == ord('l'):#level mode 1
             osc.sendGunAll("/mode",[1])
         if key == ord('k'):#level mode 0
@@ -241,7 +256,10 @@ def calcScore(userNum, userDict, oscRecvList):
             else:
                 score[0] += i[2]
     print("score:",score)
-    return score
+    score_out =[]
+    for i in score:
+        score_out.append(int(i/LEVEL_RATIO))
+    return score_out
 
 
 def initGunMode(osc):
@@ -258,63 +276,63 @@ def powerGunMode(osc,idxs = None):
         osc.sendGunAll("/mode",[0])
         osc.sendGunAll("/power",[100])
 
-def update(count,stage,timeScale,tabState,gunState,osc,window):
+def update(count,stage,timeScale,tabMode,gunMode,tabState,gunState,osc,window):
     #print("count", count,"stage",stage)
-    if count == int(5 * FPS * timeScale):
+    if count == int(4 * FPS * timeScale):
         print("[Update] change to STAGE_LEVEL_1")
         stage = STAGE_LEVEL_1
-    if count == int(12 * FPS  * timeScale):
+    if count == int(20 * FPS  * timeScale):
         print("[Update] change to STAGE_LEVEL_2")
         stage = STAGE_LEVEL_2
-    if count == int(16 * FPS  * timeScale):
+    if count == int(23 * FPS  * timeScale):
         print("[Update] change to STAGE_LEVEL_3")
         stage = STAGE_LEVEL_3
-    if count == int(20 * FPS  * timeScale):
+    if count == int(33 * FPS  * timeScale):
         print("[Update] stage end")
         stage = STAGE_END
-    if count == int(22 * FPS  * timeScale):
+    if count == int(35 * FPS  * timeScale):
         print("[Update] stage result")
         stage = STAGE_RESULT
-    if count == int(30 * FPS  * timeScale):
+    if count == int(38 * FPS  * timeScale):
         print("[Update] stage rank")
         stage = STAGE_RANK
-    if count == int(33 * FPS  * timeScale):
+    if count == int(44 * FPS  * timeScale):
         print("[Update] initialize")
         stage = STAGE_INIT
 
     if stage == STAGE_LEVEL_1:
-        for tabList in tabState:
+        for gIdx,tabList in enumerate(tabState):
             if random.random() > 0.5:
                 idx = random.randint(0,len(tabList)-1)
                 if tabList[idx] == 10:
-                    if random.random() > 0.9:
-                        tabList[idx] = MATO2_STATUS_OFFSET + 30*3
-                        osc.sendTabAll("/item",[1000*3])
+                    if random.random() > 0.8:
+                        tabList[idx] = MATO2_STATUS_OFFSET + 30*6
+                        osc.sendTab("/item",[1000*6,1],tabMode[gIdx][idx])
                     else:
-                        tabList[idx] = MATO1_STATUS_OFFSET + 30*3
-                        osc.sendTabAll("/up",[1000*3])
+                        tabList[idx] = MATO1_STATUS_OFFSET + 30*6
+                        osc.sendTab("/up",[1000*6],tabMode[gIdx][idx])
     if stage == STAGE_LEVEL_2:
-        for tabList in tabState:
-            if random.random() > 0.5:
+        for gIdx,tabList in enumerate(tabState):
+            if random.random() > 0.7:
                 idx = random.randint(0,len(tabList)-1)
                 if tabList[idx] == 10:
                     if random.random() > 0.9:
-                        tabList[idx] = MATO2_STATUS_OFFSET + 30*2
-                        osc.sendTabAll("/item",[1000*2])
+                        tabList[idx] = MATO2_STATUS_OFFSET + 30*6
+                        osc.sendTab("/item",[1000*5,1],tabMode[gIdx][idx])
                     else:
-                        tabList[idx] = MATO1_STATUS_OFFSET + 30*2
-                        osc.sendTabAll("/up",[1000*2])
+                        tabList[idx] = MATO1_STATUS_OFFSET + 30*6
+                        osc.sendTab("/up",[1000*5],tabMode[gIdx][idx])
     if stage == STAGE_LEVEL_3:
-        for tabList in tabState:
-            if random.random() > 0.5:
+        for gIdx,tabList in enumerate(tabState):
+            if random.random() > 0.8:
                 idx = random.randint(0,len(tabList)-1)
                 if tabList[idx] == 10:
                     if random.random() > 0.9:
-                        tabList[idx] = MATO2_STATUS_OFFSET + 30*1
-                        osc.sendTabAll("/item",[1000*1])
+                        tabList[idx] = MATO2_STATUS_OFFSET + 30*5
+                        osc.sendTab("/item",[1000*5,1],tabMode[gIdx][idx])
                     else:
-                        tabList[idx] = MATO1_STATUS_OFFSET + 30*1
-                        osc.sendTabAll("/up",[1000*1])
+                        tabList[idx] = MATO1_STATUS_OFFSET + 30*5
+                        osc.sendTab("/up",[1000*5],tabMode[gIdx][idx])
     updateState(tabState,gunState)
     #printState(tabState,gunState)
     return stage
