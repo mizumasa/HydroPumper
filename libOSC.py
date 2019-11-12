@@ -31,11 +31,12 @@ TAB_IPS =[
 ]
 
 TAB_IPS =[
-    IP_HEAD+"22",
-    IP_HEAD+"12",
-    IP_HEAD+"13",
     IP_HEAD+"14",
-    IP_HEAD+"15"
+    IP_HEAD+"12",
+    IP_HEAD+"22",
+    IP_HEAD+"18",
+    IP_HEAD+"15",
+    IP_HEAD+"17"
     ]
 
 TAB_IPS2 =[
@@ -61,9 +62,11 @@ GUN_IPS =[
     IP_HEAD+"20"
 ]
 GUN_IPS =[
-    IP_HEAD+"35",
-    IP_HEAD+"36",
-    IP_HEAD+"37"
+    IP_HEAD+"40",
+    IP_HEAD+"41",
+    IP_HEAD+"42",
+    IP_HEAD+"43",
+    IP_HEAD+"44"
 ]
 
 GUN_PORT = 12346

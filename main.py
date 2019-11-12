@@ -11,7 +11,7 @@ import time, random
 import os, sys
 from copy import deepcopy
 
-LEVEL_RATIO = 500.
+LEVEL_RATIO = 800.
 
 STAGE_INIT = 0
 STAGE_COUNTDOWN = 1
@@ -240,7 +240,7 @@ def makeDictIp2User(TAB_IPS, TAB_MODE):
     return out
 
 def calcRank(score):
-    t = [200,400,600]
+    t = [350,500,650]
     for i, j in enumerate(t):
         if score < j:
             return i
